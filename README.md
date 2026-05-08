@@ -48,7 +48,7 @@ cd frontend && npm install && npm run dev
 ## Credenciales de prueba
 
 | Usuario | Email | Contraseña | Rol |
-|---|---|---|---|
+|---------|-------|------------|-----|
 | Administrador | admin@ecobol.bo | Admin123! | admin |
 | Carlos Mamani | carlos.mamani@ecobol.bo | Admin123! | empleado |
 | Ana Quispe | ana.quispe@ecobol.bo | Admin123! | empleado |
