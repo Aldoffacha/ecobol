@@ -1,0 +1,58 @@
+services:
+
+  db:
+    image: postgres:16-alpine
+    container_name: ecobol_db
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ecobol_db
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: ecobol_pass
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./database/schema.sql:/docker-entrypoint-initdb.d/01_schema.sql
+      - ./database/seeds/seed.sql:/docker-entrypoint-initdb.d/02_seed.sql
+    ports:
+      - "5435:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d ecobol_db"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  backend:
+    build: ./backend
+    container_name: ecobol_backend
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      PORT: 3001
+      DB_HOST: db
+      DB_PORT: 5432
+      DB_NAME: ecobol_db
+      DB_USER: postgres
+      DB_PASSWORD: ecobol_pass
+      JWT_SECRET: ecobol_jwt_super_secreto_2026
+      JWT_EXPIRES_IN: 8h
+    ports:
+      - "3001:3001"
+    volumes:
+      - ./backend:/app
+      - /app/node_modules
+
+  frontend:
+    build: ./frontend
+    container_name: ecobol_frontend
+    restart: unless-stopped
+    depends_on:
+      - backend
+    ports:
+      - "5173:5173"
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+
+volumes:
+  postgres_data:
